@@ -1,0 +1,9 @@
+# File format:
+#
+# CN: CIDR CIDR CIDR
+# (no space before or after CN allowed)
+#
+# CN - is name of the OpenVPN certificate.
+# CIDR - is IP address/IP segment in the format accepted by iptables: 192.168.0.0/24, 10.8.0.0/16, or hostname
+#
+# dmytro: 10.0.1.10 web01

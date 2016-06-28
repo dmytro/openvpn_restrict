@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# This script is called from openvpn. To use it configure openvpn
+# 'learn-address' directive.
+# D.Kovalov, 2009
+
+CONFIG=/etc/openvpn/allow_ips
+logger="logger -i -s -t openvpn_client-connect"
+
+$logger OpenVPN Start: $@
+
+#
+# check vars: $common_name $dev $ifconfig_pool_remote_ip
+#
+[ -z "$common_name" ] && { $logger "\$common_name is not set"; exit 1; }
+[ -z "$dev" ] && { $logger "\$dev is not set"; exit 1; }
+[ -z "$ifconfig_pool_remote_ip" ] && { $logger "\$ifconfig_pool_remote_ip is not set"; exit 1; }
+# ------------------------------------------------------------
+
+
+clear () {
+    $logger Clearing iptables for $common_name
+   /sbin/iptables -F $common_name
+   /sbin/iptables -D FORWARD -s $ifconfig_pool_remote_ip -j $common_name
+   /sbin/iptables -X $common_name
+}
+
+connect () {
+     ips=$(grep "^$common_name:" $CONFIG | cut -d: -f2-)
+     [ -z "$ips" ] && { $logger "No IP's defined for $common_name "; exit; }
+    /sbin/iptables -N $common_name
+
+    /sbin/iptables -A FORWARD -s $ifconfig_pool_remote_ip -j $common_name
+
+    for IP in $ips
+      do
+      $logger Allowing $IP for $common_name
+      /sbin/iptables -A $common_name -i $dev -s $ifconfig_pool_remote_ip -d $IP -j ACCEPT
+      /sbin/iptables -A $common_name -o $dev -d $ifconfig_pool_remote_ip -s $IP -j ACCEPT
+    done
+
+    /sbin/iptables -A $common_name -i $dev -s $ifconfig_pool_remote_ip -j DROP
+    /sbin/iptables -A $common_name -o $dev -d $ifconfig_pool_remote_ip -j DROP
+    $logger "$common_name CONNECTED from $ifconfig_pool_remote_ip"
+}
+
+clear
+
+case $1 in
+    "add"|"update")    connect ;;
+    *) ;;
+esac

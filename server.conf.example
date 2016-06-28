@@ -1,0 +1,22 @@
+port 1194 #- port
+proto udp #- protocol
+dev tun
+tun-mtu 1500
+tun-mtu-extra 32
+mssfix 1450
+reneg-sec 0
+ca /etc/openvpn/easy-rsa/keys/ca.crt
+cert /etc/openvpn/easy-rsa/keys/server.crt
+key /etc/openvpn/easy-rsa/keys/server.key
+dh /etc/openvpn/easy-rsa/keys/dh2048.pem
+crl-verify /etc/openvpn/easy-rsa/keys/crl.pem
+
+keepalive 5 30
+comp-lzo
+persist-key
+persist-tun
+status openvpn.log
+verb 3
+
+learn-address /etc/openvpn/connect
+client-disconnect /etc/openvpn/connect
