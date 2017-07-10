@@ -12,7 +12,7 @@ connection to only specified IPs or hosts.
 
 
 1. Place script in OpenVPN directory (in the example below
-`/etc/openvpn/connect` ) and add follwing two lines to the server
+`/etc/openvpn/connect` ) and add following two lines to the server
 configuration file:
 
 ```
